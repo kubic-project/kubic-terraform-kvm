@@ -37,7 +37,7 @@ Run init on the one node:
     $ mkdir -p $HOME/.kube
     $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
-    $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml
+    $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
     
 And join on the others:
 
