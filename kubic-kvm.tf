@@ -9,7 +9,7 @@ variable "count_vms" {
 
 resource "libvirt_volume" "kubic_image" {
   name   = "kubic_image"
-  source = "https://download.opensuse.org/repositories/devel:/kubic:/images:/experimental/images_devel_kubic/openSUSE-Tumbleweed-Kubic.x86_64-15.0-kubeadm-cri-o-OpenStack-Cloud-Build11.13.qcow2"
+  source = "./kubic.qcow2"
 }
 
 resource "libvirt_volume" "os_volume" {

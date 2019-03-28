@@ -1,6 +1,6 @@
 .swp
 .terraform/
-kubic-kvm
+kubic.qcow2
 terraform.log
 terraform.tfstate
 terraform.tfstate.backup
