@@ -1,8 +1,6 @@
-# kubic-kvm
+# terraform-kubic-kvm
 
-The goal is to provide a simple setup of three Kubic VMs.
-
-You can extend the main.tf example provided in the `kubic-kvm` dir.
+The goal is to provide a simple setup of three [Kubic](https://kubic.opensuse.org/) VMs.
 
 # About terraform-libvirt
 
@@ -13,6 +11,7 @@ https://github.com/dmacvicar/terraform-provider-libvirt#website-docs
 ## Prerequisites
 
 You're going to need at least:
+
 * `terraform`
 * [`terraform-provider-libvirt`](https://github.com/dmacvicar/terraform-provider-libvirt)
 
@@ -26,12 +25,11 @@ Run
     $ terraform plan
     $ terraform apply
     
-to start the VMs and follow [https://kubic.opensuse.org/blog/2018-08-20-kubeadm-intro/](https://kubic.opensuse.org/blog/2018-08-20-kubeadm-intro/) to initialize Kubernetes.
-
+to start the VMs
 
 # Setting up Kubernetes cluster
 
-Run init on the one node:
+Initialize the K8s cluster by running `kubeadm` on the the first node:
 
     $ ssh -o "UserKnownHostsFile /dev/null" -l root $(terraform output -json | jq -r '.ips.value[0][]')
     $ kubeadm init --cri-socket=/var/run/crio/crio.sock --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU
@@ -41,7 +39,7 @@ Run init on the one node:
     $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
     $ ^D
     
-And join on the others:
+And run `join` on the others:
 
     $ ssh -o "UserKnownHostsFile /dev/null" -l root $(terraform output -json | jq -r '.ips.value[1][]')
     $ kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
@@ -55,3 +53,7 @@ And join on the others:
 
     $ scp root@$(terraform output -json | jq -r '.ips.value[0][]'):~/.kube/config ~/.kube/config
     $ k get nodes
+    
+# References
+
+ * Outdated [Kubic blog entry](https://kubic.opensuse.org/blog/2018-08-20-kubeadm-intro/)
