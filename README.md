@@ -33,12 +33,20 @@ to start the VMs and follow [https://kubic.opensuse.org/blog/2018-08-20-kubeadm-
 
 Run init on the one node:
 
+    $ ssh -o "UserKnownHostsFile /dev/null" -l root $(terraform output -json | jq -r '.ips.value[0][]')
     $ kubeadm init --cri-socket=/var/run/crio/crio.sock --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU
     $ mkdir -p $HOME/.kube
     $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
     $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+    $ ^D
     
 And join on the others:
 
+    $ ssh -o "UserKnownHostsFile /dev/null" -l root $(terraform output -json | jq -r '.ips.value[1][]')
     $ kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
+    $ ^D
+    $ ssh -o "UserKnownHostsFile /dev/null" -l root $(terraform output -json | jq -r '.ips.value[2][]')
+    $ kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
+    $ ^D
+    
