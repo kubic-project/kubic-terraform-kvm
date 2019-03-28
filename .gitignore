@@ -4,3 +4,4 @@ kubic.qcow2
 terraform.log
 terraform.tfstate
 terraform.tfstate.backup
+ssh_config

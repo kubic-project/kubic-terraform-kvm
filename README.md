@@ -24,6 +24,7 @@ Run
     $ terraform init
     $ terraform plan
     $ terraform apply
+    $ ./mk-ssh-config.sh
     
 to start the VMs
 
@@ -31,7 +32,7 @@ to start the VMs
 
 Initialize the K8s cluster by running `kubeadm` on the the first node:
 
-    $ ssh -o "UserKnownHostsFile /dev/null" -l root $(terraform output -json | jq -r '.ips.value[0][]')
+    $ ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[0][]')
     $ kubeadm init --cri-socket=/var/run/crio/crio.sock --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU
     $ mkdir -p $HOME/.kube
     $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -41,13 +42,12 @@ Initialize the K8s cluster by running `kubeadm` on the the first node:
     
 And run `join` on the others:
 
-    $ ssh -o "UserKnownHostsFile /dev/null" -l root $(terraform output -json | jq -r '.ips.value[1][]')
+    $ ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[1][]')
     $ kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
     $ ^D
-    $ ssh -o "UserKnownHostsFile /dev/null" -l root $(terraform output -json | jq -r '.ips.value[2][]')
+    $ ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[2][]')
     $ kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
     $ ^D
-    
 
 # Access the cluster locally
 
