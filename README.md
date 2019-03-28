@@ -50,3 +50,8 @@ And join on the others:
     $ kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
     $ ^D
     
+
+# Access the cluster locally
+
+    $ scp root@$(terraform output -json | jq -r '.ips.value[0][]'):~/.kube/config ~/.kube/config
+    $ k get nodes
