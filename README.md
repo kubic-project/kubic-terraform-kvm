@@ -20,11 +20,13 @@ You're going to need at least:
 
 Run 
 
-    ./download-image.sh
-    terraform init
-    terraform plan
-    terraform apply
-    ./mk-ssh-config.sh
+```bash
+./download-image.sh
+terraform init
+terraform plan
+terraform apply
+./mk-ssh-config.sh
+```
     
 to start the VMs.
 
@@ -34,30 +36,49 @@ to start the VMs.
 
 Initialize the K8s cluster by running `kubeadm` on the the first node:
 
-    cat <<'EOF' | ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[0][]') 'bash -s'
-    kubeadm init --cri-socket=/var/run/crio/crio.sock --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU
-    mkdir -p $HOME/.kube
-    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    sudo chown $(id -u):$(id -g) $HOME/.kube/config
-    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-    EOF
+```bash
+cat <<'EOF' | ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[0][]') 'bash -s'
+kubeadm init --cri-socket=/var/run/crio/crio.sock --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+EOF
+```
     
 And run `join` on the others:
 
-    ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[1][]')
-    kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
-    ^D
-    ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[2][]')
-    kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
-    ^D
+```bash
+ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[1][]')
+kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
+^D
+ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[2][]')
+kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
+^D
+```
 
 # Howto
 
 ## Access the cluster locally
 
-    scp -F ssh_config $(terraform output -json | jq -r '.ips.value[0][]'):~/.kube/config ~/.kube/config
-    k get nodes
+```bash
+scp -F ssh_config $(terraform output -json | jq -r '.ips.value[0][]'):~/.kube/config ~/.kube/config
+k get nodes
+```
     
+## Using an insecure private registry
+
+```bash
+registry_ip="$(terraform output -json | jq -r '.ips.value[0][]'):5000"  # or another IO
+for h in $(terraform output -json | jq -r '.ips.value[][]')
+do
+    cat <<EOF | ssh -F ssh_config $h 'bash -s'
+sed -i 's/\[crio\.image\]/[crio.image]\ninsecure_registries = ["$registry_ip"]/g' /etc/crio/crio.conf
+grep -C 1 insecure /etc/crio/crio.conf
+systemctl restart crio
+EOF
+done
+ ```
  
 # References
 

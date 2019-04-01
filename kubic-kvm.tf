@@ -21,8 +21,8 @@ resource "libvirt_volume" "os_volume" {
 resource "libvirt_volume" "data_volume" {
   name = "data_volume-${count.index}"
 
-  // 5 * 1024 * 1024 * 1024
-  size  = 5368709120
+  // 6 * 1024 * 1024 * 1024
+  size  = 6442450944
   count = "${var.count_vms}"
 }
 
