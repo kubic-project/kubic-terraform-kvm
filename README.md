@@ -30,6 +30,17 @@ terraform apply
     
 to start the VMs.
 
+Some parameters (like number of virtual machines and parameters of virtual
+machines) are configurable by creating a `terraform.tfvars` file which can be
+copied from the sample file:
+
+```
+cp terraform.tfvars.sample terraform.tfvars
+```
+
+Please refer to the `variables.tf` file for the full variables list with
+descriptions.
+
 *note: the default password for the root user is `linux`.*
 
 # Setting up Kubernetes cluster
@@ -38,7 +49,7 @@ Initialize the K8s cluster by running `kubeadm` on the the first node:
 
 ```bash
 cat <<'EOF' | ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[0][]') 'bash -s'
-kubeadm init --cri-socket=/var/run/crio/crio.sock --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU
+kubeadm init --cri-socket=/var/run/crio/crio.sock --pod-network-cidr=10.244.0.0/16
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
@@ -50,10 +61,10 @@ And run `join` on the others:
 
 ```bash
 ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[1][]')
-kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
+kubeadm join --cri-socket=/var/run/crio/crio.sock ....
 ^D
 ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[2][]')
-kubeadm join --cri-socket=/var/run/crio/crio.sock --ignore-preflight-errors=NumCPU ....
+kubeadm join --cri-socket=/var/run/crio/crio.sock ....
 ^D
 ```
 
