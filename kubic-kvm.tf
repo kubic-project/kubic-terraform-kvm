@@ -2,11 +2,6 @@ provider "libvirt" {
   uri = "qemu:///system"
 }
 
-variable "count_vms" {
-  description = "number of virtual-machine of same type that will be created"
-  default     = 3
-}
-
 resource "libvirt_volume" "kubic_image" {
   name   = "kubic_image"
   source = "./kubic.qcow2"
@@ -49,7 +44,8 @@ resource "libvirt_domain" "kubic-domain" {
     mode = "host-passthrough"
   }
 
-  memory = 2048
+  memory = "${var.memory}"
+  vcpu   = "${var.vcpu}"
 
   disk {
     volume_id = "${element(libvirt_volume.os_volume.*.id, count.index)}"
