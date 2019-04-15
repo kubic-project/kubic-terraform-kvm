@@ -57,15 +57,13 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 EOF
 ```
     
-And run `join` on the others:
+And run the `kubeadm join` on the others. We just have to add `--cri-socket=/var/run/crio/crio.sock`:
 
 ```bash
-ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[1][]')
-kubeadm join --cri-socket=/var/run/crio/crio.sock ....
-^D
-ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[2][]')
-kubeadm join --cri-socket=/var/run/crio/crio.sock ....
-^D
+join_command=$(ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[0][]') "kubeadm token create --print-join-command")
+join_command="kubeadm join --cri-socket=/var/run/crio/crio.sock $(echo $join_command | python -c 'import sys; print(" ".join(sys.stdin.read().split()[2:]))')"
+ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[1][]') "$join_command"
+ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[2][]') "$join_command"
 ```
 
 # Howto
