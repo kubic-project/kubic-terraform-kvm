@@ -14,7 +14,6 @@ You're going to need at least:
 
 * `terraform`
 * [`terraform-provider-libvirt`](https://github.com/dmacvicar/terraform-provider-libvirt)
-* `pandoc`
 
 
 # Usage
