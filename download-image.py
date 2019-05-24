@@ -42,7 +42,7 @@ def download_image(url: str, dst):
 if __name__ == '__main__':
     dst = 'kubic.qcow2'
     url = base_url + image_name
-    if local_sha256(dst) == remote_sha256(url):
+    if os.path.isfile(dst) and local_sha256(dst) == remote_sha256(url):
         print('already downloaded.')
     else:
         download_image(url, dst)
