@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import hashlib
 import os
+import sys
 from functools import reduce
 from urllib.request import urlretrieve, urlopen
 
@@ -27,16 +28,20 @@ def download_image(url: str, dst):
     def reporthook(count, blockSize, totalSize):
         nonlocal last_percent_reported
         percent = int(count * blockSize * 100 / totalSize)
+        progress = int(count * blockSize * 50 / totalSize)
 
-        if last_percent_reported != percent:
-            if percent % 5 == 0:
-                print("%s%%" % percent)
+        if last_percent_reported == percent:
+            return
 
-            last_percent_reported = percent
+        sys.stdout.write("\r[%s%s] %d%%" % ('=' * progress, ' ' * (50-progress), percent))
+        sys.stdout.flush()
+
+        last_percent_reported = percent
 
     print("downloading " + url)
 
     urlretrieve(url, dst, reporthook=reporthook)
+    print()
 
 
 if __name__ == '__main__':
