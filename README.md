@@ -21,7 +21,7 @@ You're going to need at least:
 Run 
 
 ```bash
-./download-image.sh
+./download-image.py
 terraform init
 terraform plan
 terraform apply
