@@ -25,7 +25,7 @@ data "template_file" "cloud_init_disk_user_data" {
   count    = "${var.count_vms}"
   template = "${file("commoninit.cfg")}"
 
-  vars {
+  vars = {
     hostname = "kubic-${count.index}"
   }
 }
@@ -40,7 +40,7 @@ resource "libvirt_cloudinit_disk" "commoninit" {
 resource "libvirt_domain" "kubic-domain" {
   name = "kubic-kubadm-${count.index}"
 
-  cpu {
+  cpu = {
     mode = "host-passthrough"
   }
 
