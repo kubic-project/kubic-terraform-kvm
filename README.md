@@ -12,7 +12,7 @@ https://github.com/dmacvicar/terraform-provider-libvirt#website-docs
 
 You're going to need at least:
 
-* `terraform`
+* `terraform` >= 1.12
 * [`terraform-provider-libvirt`](https://github.com/dmacvicar/terraform-provider-libvirt)
 
 
