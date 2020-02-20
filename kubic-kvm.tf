@@ -37,7 +37,7 @@ resource "libvirt_cloudinit_disk" "commoninit" {
   count     = var.count_vms
 }
 
-resource "libvirt_domain" "kubic-domain" {
+resource "libvirt_domain" "kubic_domain" {
   name = "kubic-kubadm-${count.index}"
 
   cpu = {
@@ -65,5 +65,5 @@ resource "libvirt_domain" "kubic-domain" {
 }
 
 output "ips" {
-  value = libvirt_domain.kubic-domain.*.network_interface.0.addresses
+  value = libvirt_domain.kubic_domain.*.network_interface.0.addresses
 }
