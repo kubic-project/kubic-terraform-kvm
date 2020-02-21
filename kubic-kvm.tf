@@ -37,8 +37,20 @@ resource "libvirt_cloudinit_disk" "commoninit" {
   count     = var.count_vms
 }
 
+resource "libvirt_network" "kubic_network" {
+  name   = "kubic-network"
+  mode   = var.network_mode
+  domain = var.dns_domain
+
+  dns {
+    enabled = true
+  }
+
+  addresses = [var.network_cidr]
+}
+
 resource "libvirt_domain" "kubic_domain" {
-  name = "kubic-kubadm-${count.index}"
+  name = "kubic-kubeadm-${count.index}"
 
   cpu = {
     mode = "host-passthrough"
@@ -56,7 +68,9 @@ resource "libvirt_domain" "kubic_domain" {
   }
 
   network_interface {
-    network_name   = "default"
+    network_name   = "kubic-network"
+    hostname       = "kubic-kubeadm-${count.index}"
+    addresses      = [cidrhost(var.network_cidr, count.index)]
     wait_for_lease = true
   }
 
