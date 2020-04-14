@@ -21,22 +21,6 @@ resource "libvirt_volume" "data_volume" {
   count = var.count_vms
 }
 
-data "template_file" "cloud_init_disk_user_data" {
-  count    = var.count_vms
-  template = file("commoninit.cfg")
-
-  vars = {
-    hostname = "kubic-${count.index}"
-  }
-}
-
-resource "libvirt_cloudinit_disk" "commoninit" {
-  name      = "commoninit-${count.index}.iso"
-  pool      = "default"
-  user_data = element(data.template_file.cloud_init_disk_user_data.*.rendered, count.index)
-  count     = var.count_vms
-}
-
 resource "libvirt_network" "kubic_network" {
   name   = "kubic-network"
   mode   = var.network_mode
@@ -47,6 +31,21 @@ resource "libvirt_network" "kubic_network" {
   }
 
   addresses = [var.network_cidr]
+}
+
+data "template_file" "ignition_data" {
+  count    = var.count_vms
+  template = file("commoninit.ign")
+
+  vars = {
+    hostname = "kubic-${count.index}"
+  }
+}
+
+resource "libvirt_ignition" "kubic_ignition" {
+  name    = "kubic-ignition-${count.index}"
+  content = element(data.template_file.ignition_data.*.rendered, count.index)
+  count   = var.count_vms
 }
 
 resource "libvirt_domain" "kubic_domain" {
@@ -73,8 +72,8 @@ resource "libvirt_domain" "kubic_domain" {
     wait_for_lease = true
   }
 
-  cloudinit = element(libvirt_cloudinit_disk.commoninit.*.id, count.index)
-  count     = var.count_vms
+  coreos_ignition = element(libvirt_ignition.kubic_ignition.*.id, count.index)
+  count           = var.count_vms
 }
 
 output "ips" {
