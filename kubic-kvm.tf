@@ -70,7 +70,6 @@ resource "libvirt_domain" "kubic_domain" {
   network_interface {
     network_name   = "kubic-network"
     hostname       = "kubic-kubeadm-${count.index}"
-    addresses      = [cidrhost(var.network_cidr, count.index)]
     wait_for_lease = true
   }
 
